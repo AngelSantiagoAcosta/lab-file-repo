@@ -1,0 +1,46 @@
+###
+### A complete description of a Prefect Deployment for flow 'process-all'
+###
+name: lab-file-qc-deployment
+description: null
+version: c75bd9d200c8fb19b4dac5bcf36dd511
+# The work queue that will handle this deployment's runs
+work_queue_name: labfile q
+tags: []
+parameters: {}
+schedule: null
+infra_overrides: {}
+infrastructure:
+  type: process
+  env: {}
+  labels: {}
+  name: null
+  command: null
+  stream_output: true
+  block_type_slug: process
+  _block_type_slug: process
+
+###
+### DO NOT EDIT BELOW THIS LINE
+###
+flow_name: process-all
+manifest_path: null
+storage:
+  repository: https://github.com/AngelSantiagoAcosta/lab-file-repo.git
+  reference: null
+  _block_document_id: 30757048-4277-4922-a69a-23d7e0a652e7
+  _block_document_name: lab-file-gh
+  _is_anonymous: false
+  block_type_slug: github
+  _block_type_slug: github
+path: ''
+entrypoint: lab_file_qc.py:process_all
+parameter_openapi_schema:
+  title: Parameters
+  type: object
+  properties:
+    dir:
+      title: dir
+  required:
+  - dir
+  definitions: null
