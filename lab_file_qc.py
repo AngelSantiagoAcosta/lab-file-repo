@@ -73,7 +73,7 @@ def validation_7(df): #takes df, returns validation 7 series
         subset_df = df.loc[sample_filter]
         result_ID_list = subset_df.loc[condition1]["TestResultID"].to_list()
         analyte_to_check_list = df.loc[(sample_filter) &(condition1)]["Analyte"].astype(str).to_list() # should return a single result, NOT ALWAYS TRUE
-        analyte_to_check_list = [ i+"?" if ("?" not in i & i!="PLT_Abn_Distribution") else i  for i in analyte_to_check_list ]
+        analyte_to_check_list = [ i+"?" if (("?" not in i) and (i!="PLT_Abn_Distribution")) else i  for i in analyte_to_check_list ]
         analyte_to_check_list = [ i.replace("_"," ") if "_Lympho" in i else i for i in analyte_to_check_list ]
         record_dict = dict(zip(result_ID_list,analyte_to_check_list))
         for record_ID, analyte in record_dict.items():
@@ -143,7 +143,7 @@ def validation_25(df):
         subset_df = df.loc[sample_filter]
         result_ID_list = subset_df.loc[condition1]["TestResultID"].to_list()
         analyte_to_check_list = df.loc[(sample_filter) &(condition1)]["Analyte"].astype(str).to_list() # should return a single result, NOT ALWAYS TRUE
-        analyte_to_check_list = [ i+"?" if ("?" not in i & i!="PLT_Abn_Distribution") else i  for i in analyte_to_check_list ]
+        analyte_to_check_list = [ i+"?" if (("?" not in i) and (i!="PLT_Abn_Distribution")) else i  for i in analyte_to_check_list ]
         analyte_to_check_list = [ i.replace("_"," ") if "_Lympho" in i else i for i in analyte_to_check_list ]
         record_dict = dict(zip(result_ID_list,analyte_to_check_list))
         for record_ID, analyte in record_dict.items():
