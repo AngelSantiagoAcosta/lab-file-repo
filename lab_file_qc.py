@@ -296,7 +296,7 @@ def apply_validation_checks(df): #takes dataframe, returns dataframe with new va
     df["Validation 22"] = np.where((~is_number(df["TestResultValue"].astype(str))) & ((df["TestResultValue"].str.lower().isin(acceptable_string_list_22) == False) & (df["TestResultValue"].str.startswith(("<",">"),na=False)==False)),"Unacceptable String Value in TestResultValue","passed")
     acceptable_string_list_23 = [i.lower() for i in acceptable_string_list__23]
     # df["Validation 23"] = np.where((df["TestResultValue"].str.lower().isin(acceptable_string_list_23)) & ((df["Repeat"].isnull()==False) | (df["InitialResult"].isnull()==False)),"Repeat and Initial Result should be null","passed")
-    df["Validation 24"] = np.where(((df["Origin"] == "Sysmex XN-1000")) & (df["Analyte"].str.contains("Fragments?",na=False) == False) (df["TestResultFlags"].isin(["W","A"])) & (df["Repeat"] != "Y"),"Missing Repeat = 'Y'","passed")
+    df["Validation 24"] = np.where(((df["Origin"] == "Sysmex XN-1000")) & (df["Analyte"].str.contains("Fragments?",na=False) == False) & (df["TestResultFlags"].isin(["W","A"])) & (df["Repeat"] != "Y"),"Missing Repeat = 'Y'","passed")
     df["Validation 25"] = validation_25(df)
     df["Validation 26"] = np.where((df["Analyte"].isin(ip_message_list) == False) & ((df["Method"].isnull()) | (df["TestCloverCode"].isnull())),"Method and TestClover Code should not be null","passed")
     df["Validation 27"] = np.where((df["SampleID"].str[0] != df["StudyID"].str[-1]),"Data does not belong in the file","passed")
