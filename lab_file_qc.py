@@ -73,7 +73,8 @@ def validation_7(df): #takes df, returns validation 7 series
         subset_df = df.loc[sample_filter]
         result_ID_list = subset_df.loc[condition1]["TestResultID"].to_list()
         analyte_to_check_list = df.loc[(sample_filter) &(condition1)]["Analyte"].astype(str).to_list() # should return a single result, NOT ALWAYS TRUE
-        analyte_to_check_list = [ i+"?" if "?" not in i else i  for i in analyte_to_check_list ]
+        analyte_to_check_list = [ i+"?" if (("?" not in i) and (i!="PLT_Abn_Distribution")) else i  for i in analyte_to_check_list ]
+        analyte_to_check_list = [ i.replace("_"," ") if "_Lympho" in i else i for i in analyte_to_check_list ]
         record_dict = dict(zip(result_ID_list,analyte_to_check_list))
         for record_ID, analyte in record_dict.items():
             # Heath Said remove cond 2
@@ -142,7 +143,8 @@ def validation_25(df):
         subset_df = df.loc[sample_filter]
         result_ID_list = subset_df.loc[condition1]["TestResultID"].to_list()
         analyte_to_check_list = df.loc[(sample_filter) &(condition1)]["Analyte"].astype(str).to_list() # should return a single result, NOT ALWAYS TRUE
-        analyte_to_check_list = [ i+"?" if "?" not in i else i  for i in analyte_to_check_list ]
+        analyte_to_check_list = [ i+"?" if (("?" not in i) and (i!="PLT_Abn_Distribution")) else i  for i in analyte_to_check_list ]
+        analyte_to_check_list = [ i.replace("_"," ") if "_Lympho" in i else i for i in analyte_to_check_list ]
         record_dict = dict(zip(result_ID_list,analyte_to_check_list))
         for record_ID, analyte in record_dict.items():
             analyte_confirmed = analyte + " Confirmed?" 
@@ -211,6 +213,9 @@ def validation_33(df):  #takes df, returns validation 6 series
         sample_filter = (df["SampleID"] == sampleID)
         ip_message = df.loc[sample_filter & condition1]["Analyte"].to_list()[0]
         ip_message_to_check = ip_message.split(" Confirmed?")[0]
+        if "_Lympho" in ip_message_to_check:
+            ip_message_to_check = ip_message_to_check.replace("_"," ")
+        
         record_ID = df.loc[sample_filter & condition1]["TestResultID"].to_list()[0]
         condition2 = np.any(np.where((df.loc[sample_filter]["Analyte"]) == ip_message_to_check , True,False))
         df.loc[sample_filter  & (df["TestResultID"] == record_ID),"Validation 33"]= np.where((condition2) ,"passed","missing corresponding Records")
@@ -297,7 +302,10 @@ def apply_validation_checks(df): #takes dataframe, returns dataframe with new va
     duplicate_columns_to_check.remove('Origin')
     df["Validation 15"] = np.where((df.duplicated(subset=duplicate_columns_to_check, keep=False)) ,"Record is duplicated","passed")
     df["Validation 16"] = validation_16(df)
-    df["Validation 17"] = np.where((df["Analyte"].isin(ip_message_list)) & (df["TestResultFlags"].isnull()),"Test should not be present if TestResultFlag is null","passed")
+
+
+    ip_message_list_17 = [i  for i in ip_message_list if "Confirmed?" not in i]
+    df["Validation 17"] = np.where((df["Analyte"].isin(ip_message_list_17)) & (df["TestResultFlags"].isnull()),"Test should not be present if TestResultFlag is null","passed")
     df["Validation 18"] = np.where((df["SampleID"].str.split("-").str[-1] == df["Tube"].astype(str)) | (df["Tube"].astype(str) == "Slide"), "passed", "Wrong order choice for tube type")
     # df["Validation 19"] = np.where((df["Repeat"]=="Y") & (~is_number(df["TestResultValue"].astype(str))) , "Repeat was not successful and needs correction in LIS", "passed")
     df["Validation 20"] = validation_20(df)
@@ -305,8 +313,8 @@ def apply_validation_checks(df): #takes dataframe, returns dataframe with new va
     acceptable_string_list_22 = [i.lower() for i in acceptable_string_list]
     df["Validation 22"] = np.where((~is_number(df["TestResultValue"].astype(str))) & ((df["TestResultValue"].str.lower().isin(acceptable_string_list_22) == False) & (df["TestResultValue"].str.startswith(("<",">"),na=False)==False)),"Unacceptable String Value in TestResultValue","passed")
     acceptable_string_list_23 = [i.lower() for i in acceptable_string_list__23]
-    df["Validation 23"] = np.where((df["TestResultValue"].str.lower().isin(acceptable_string_list_23)) & ((df["Repeat"].isnull()==False) | (df["InitialResult"].isnull()==False)),"Repeat and Initial Result should be null","passed")
-    df["Validation 24"] = np.where(((df["Origin"] == "Sysmex XN-1000")) & (df["TestResultFlags"].isin(["W","A"])) & (df["Repeat"] != "Y"),"Missing Repeat = 'Y'","passed")
+    # df["Validation 23"] = np.where((df["TestResultValue"].str.lower().isin(acceptable_string_list_23)) & ((df["Repeat"].isnull()==False) | (df["InitialResult"].isnull()==False)),"Repeat and Initial Result should be null","passed")
+    df["Validation 24"] = np.where(((df["Origin"] == "Sysmex XN-1000")) & (df["Analyte"].str.contains("Fragments?",na=False) == False) & (df["TestResultFlags"].isin(["W","A"])) & (df["Repeat"] != "Y"),"Missing Repeat = 'Y'","passed")
     df["Validation 25"] = validation_25(df)
     df["Validation 26"] = np.where((df["Analyte"].isin(ip_message_list) == False) & ((df["Method"].isnull()) | (df["TestCloverCode"].isnull())),"Method and TestClover Code should not be null","passed")
     df["Validation 27"] = np.where((df["SampleID"].str[0] != df["StudyID"].str[-1]),"Data does not belong in the file","passed")
@@ -408,7 +416,7 @@ val_8_analyte_list = ["PLT_Abn_Distribution","Fragments?","Abn_Lympho?","ACTION_
 "NRBC Present?","PLT_Clumps?","PRBC?","RBC_Agglutination?","Turbidity/HGB_Interference?"]
 
 ip_message_list = ["WBC_Abn_Scattergram","RBC_Abn_Distribution","RBC_Agglutination?","PLT_Abn_Distribution", "PLT_Abn_Distribution Confirmed?"
-"PLT_Abn_Scattergram","PLT_Clumps?","Blasts?","Blasts/Abn_Lympho?","Atypical_Lympho?","Abn_Lympho?","Turbidity/HGB_Interference?",
+"PLT_Abn_Scattergram","PLT_Clumps?","Blasts?","Blasts/Abn_Lympho?","Atypical_Lympho?","Atypical Lympho? Confirmed?","Blasts/Abn Lympho? Confirmed?","Abn_Lympho?","Turbidity/HGB_Interference?",
 "Left_Shift?","NRBC_Present","Iron_Deficiency?","Fragments?","Fragments? Confirmed?", "PLTCLUMP", "PLT_Clumps? Confirmed?"] 
 
 
