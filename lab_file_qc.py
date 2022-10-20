@@ -305,7 +305,7 @@ def apply_validation_checks(df): #takes dataframe, returns dataframe with new va
 
 
     ip_message_list_17 = [i  for i in ip_message_list if "Confirmed?" not in i]
-    df["Validation 17"] = np.where((df["Analyte"].isin(ip_message_list_17)) & (df["TestResultFlags"].isnull()),"Test should not be present if TestResultFlag is null","passed")
+    df["Validation 17"] = np.where((df["Analyte"].isin(ip_message_list_17)) &((df["Analyte"]!="PLTCLUMP")) &((df["Repeat"]!="Y"))& (df["TestResultFlags"].isnull()),"Test should not be present if TestResultFlag is null","passed")
     df["Validation 18"] = np.where((df["SampleID"].str.split("-").str[-1] == df["Tube"].astype(str)) | (df["Tube"].astype(str) == "Slide"), "passed", "Wrong order choice for tube type")
     # df["Validation 19"] = np.where((df["Repeat"]=="Y") & (~is_number(df["TestResultValue"].astype(str))) , "Repeat was not successful and needs correction in LIS", "passed")
     df["Validation 20"] = validation_20(df)
