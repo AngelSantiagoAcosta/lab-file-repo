@@ -214,8 +214,8 @@ def validation_33(df):  #takes df, returns validation 6 series
         ip_message = df.loc[sample_filter & condition1]["Analyte"].to_list()[0]
         ip_message_to_check = ip_message.split(" Confirmed?")[0]
         if "_Lympho" in ip_message_to_check:
-            ip_message_to_check = ip_message_to_check.replace("_"," ")
-        
+            ip_message_to_check = ip_message_to_check.replace(" ","_")
+
         record_ID = df.loc[sample_filter & condition1]["TestResultID"].to_list()[0]
         condition2 = np.any(np.where((df.loc[sample_filter]["Analyte"]) == ip_message_to_check , True,False))
         df.loc[sample_filter  & (df["TestResultID"] == record_ID),"Validation 33"]= np.where((condition2) ,"passed","missing corresponding Records")
