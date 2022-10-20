@@ -258,6 +258,24 @@ def validation_37(df):
         df.loc[sample_filter & ip_message_filter,"Validation 37"]= np.where((comfirmed_bool) ,"passed","IP Message confirmation should be present")
     return df["Validation 37"]
 
+@task  
+def validation_38(df):
+    df["Validation 38"] = ""
+    condition1 = (df["Repeat"] == "Y") & (df["Origin"].isin(val_9_origin_values))
+    sampleID_list = df.loc[condition1]["SampleID"].unique()
+    for sampleID in sampleID_list:
+        sample_filter = (df["SampleID"] == sampleID)
+        condition2 = (df["Repeat"] != "Y")
+        resultID_list = df.loc[sample_filter & condition1]["TestResultID"].to_list()
+        aspiration_origin_list = df.loc[sample_filter & condition1][["AspirationTimestamp","Origin"]].values.tolist()
+        record_dict = dict(zip(resultID_list,aspiration_origin_list))
+        for resultID, timestamp_origin in record_dict.items():
+            # test_comment_bool = df.loc[df["TestResultID"] == resultID]["Test Comments"].isnull().to_list()[0]
+            cond_3_df = df.loc[condition2 & (df["Origin"] == timestamp_origin[1]) & sample_filter]
+            condition3 = np.any(np.where((timestamp_origin[0] < cond_3_df["AspirationTimestamp"]),True, np.where((timestamp_origin[0] == cond_3_df["AspirationTimestamp"]),True,False)))
+            df.loc[sample_filter & (df["AspirationTimestamp"] == timestamp_origin[0]) & (df["TestResultID"] == resultID),"Validation 38"]= np.where((condition3) ,"Aspiration Time of repeat test is not after initial tests","passed")        
+    return df["Validation 38"]
+
 @flow
 def apply_validation_checks(df): #takes dataframe, returns dataframe with new validation columns with pass/failed reason.
                         # logic structure np.where(condition(s) , value returned if true, value returned if false)
@@ -309,6 +327,7 @@ def apply_validation_checks(df): #takes dataframe, returns dataframe with new va
     df["Validation 35"]= np.where(((df["Repeat"] == "Y") & (df["Analyte"].isin(ip_message_list)) & (df["InitialResult"].str.contains("A|----",na=False) == False)) , "Initail Result should contain 'A'", "passed")
     df["Validation 36"]= validation_36(df)
     df["Validation 37"]= validation_37(df)
+    df["Validation 38"]= validation_38(df)
 
 
 @task
@@ -396,7 +415,7 @@ val_8_analyte_list = ["PLT_Abn_Distribution","Fragments?","Abn_Lympho?","ACTION_
 "Blasts/Abn_Lympho?","Dimorphic Population?","HGB_Defect?","Iron_Deficiency?","Left_Shift?",
 "NRBC Present?","PLT_Clumps?","PRBC?","RBC_Agglutination?","Turbidity/HGB_Interference?"]
 
-ip_message_list = ["WBC_Abn_Scattergram","RBC_Abn_Distribution","RBC_Agglutination?","PLT_Abn_Distribution", "PLT_Abn_Distribution Confirmed?"
+ip_message_list = ["WBC_Abn_Scattergram","RBC_Abn_Distribution","RBC_Agglutination?","PLT_Abn_Distribution", "PLT_Abn_Distribution Confirmed?",
 "PLT_Abn_Scattergram","PLT_Clumps?","Blasts?","Blasts/Abn_Lympho?","Atypical_Lympho?","Atypical Lympho? Confirmed?","Blasts/Abn Lympho? Confirmed?","Abn_Lympho?","Turbidity/HGB_Interference?",
 "Left_Shift?","NRBC_Present","Iron_Deficiency?","Fragments?","Fragments? Confirmed?", "PLTCLUMP", "PLT_Clumps? Confirmed?"] 
 
