@@ -74,13 +74,13 @@ def validation_7(df): #takes df, returns validation 7 series
         result_ID_list = subset_df.loc[condition1]["TestResultID"].to_list()
         analyte_to_check_list = df.loc[(sample_filter) &(condition1)]["Analyte"].astype(str).to_list() # should return a single result, NOT ALWAYS TRUE
         analyte_to_check_list = [ i+"?" if (("?" not in i) and (i!="PLT_Abn_Distribution")) else i  for i in analyte_to_check_list ]
-        analyte_to_check_list = [ i.replace("_"," ") if "_Lympho" in i else i for i in analyte_to_check_list ]
+        # analyte_to_check_list = [ i.replace("_"," ") if "_Lympho" in i else i for i in analyte_to_check_list ]
         record_dict = dict(zip(result_ID_list,analyte_to_check_list))
         for record_ID, analyte in record_dict.items():
             # Heath Said remove cond 2
             # condition2 = np.any(np.where((df.loc[sample_filter]["Analyte"].str.contains(analyte,na=False)) & (df.loc[sample_filter]["TestResultValue"].isnull()==False)))
             analyte_confirmed = analyte + " Confirmed?" 
-            condition3 = np.any(np.where((subset_df["Analyte"] == analyte_confirmed) & (subset_df["TestResultValue"].astype(str).isin(["Yes","No"])), True,False))
+            condition3 = np.any(np.where((subset_df["Analyte"].str.replace("_"," ") == analyte_confirmed.replace("_"," ")) & (subset_df["TestResultValue"].astype(str).isin(["Yes","No"])), True,False))
             df.loc[sample_filter & (df["TestResultID"] == record_ID),"Validation 7"]= np.where((condition3) ,"passed","Hematology result is not flagged as confirmed")
     return df["Validation 7"]
 
@@ -144,11 +144,11 @@ def validation_25(df):
         result_ID_list = subset_df.loc[condition1]["TestResultID"].to_list()
         analyte_to_check_list = df.loc[(sample_filter) &(condition1)]["Analyte"].astype(str).to_list() # should return a single result, NOT ALWAYS TRUE
         analyte_to_check_list = [ i+"?" if (("?" not in i) and (i!="PLT_Abn_Distribution")) else i  for i in analyte_to_check_list ]
-        analyte_to_check_list = [ i.replace("_"," ") if "_Lympho" in i else i for i in analyte_to_check_list ]
+        # analyte_to_check_list = [ i.replace("_"," ") if "_Lympho" in i else i for i in analyte_to_check_list ]
         record_dict = dict(zip(result_ID_list,analyte_to_check_list))
         for record_ID, analyte in record_dict.items():
             analyte_confirmed = analyte + " Confirmed?" 
-            condition3 = np.any(np.where((subset_df["Analyte"] == analyte_confirmed) & (subset_df["TestResultValue"].astype(str).isin(["Yes","No"])), True,False))
+            condition3 = np.any(np.where((subset_df["Analyte"].str.replace("_"," ") == analyte_confirmed.replace("_"," ")) & (subset_df["TestResultValue"].astype(str).isin(["Yes","No"])), True,False))
             df.loc[sample_filter & (df["TestResultID"] == record_ID),"Validation 25"]= np.where((condition3) ,"passed","Ip Message Test result is not flagged as confirmed")
     return df["Validation 25"]
 
@@ -213,11 +213,10 @@ def validation_33(df):  #takes df, returns validation 6 series
         sample_filter = (df["SampleID"] == sampleID)
         ip_message = df.loc[sample_filter & condition1]["Analyte"].to_list()[0]
         ip_message_to_check = ip_message.split(" Confirmed?")[0]
-        if "_Lympho" in ip_message_to_check:
-            ip_message_to_check = ip_message_to_check.replace(" ","_")
-
+        # if "_Lympho" in ip_message_to_check:
+        #     ip_message_to_check = ip_message_to_check.replace(" ","_")
         record_ID = df.loc[sample_filter & condition1]["TestResultID"].to_list()[0]
-        condition2 = np.any(np.where((df.loc[sample_filter]["Analyte"]) == ip_message_to_check , True,False))
+        condition2 = np.any(np.where((df.loc[sample_filter]["Analyte"].str.replace("_"," ")) == ip_message_to_check.replace("_"," ") , True,False))
         df.loc[sample_filter  & (df["TestResultID"] == record_ID),"Validation 33"]= np.where((condition2) ,"passed","missing corresponding Records")
     return df["Validation 33"]
 
