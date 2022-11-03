@@ -323,8 +323,8 @@ def apply_validation_checks(df): #takes dataframe, returns dataframe with new va
     df["Validation 31"] = np.where((df["SubjID"] != df["SampleID"].str.rsplit('-',1).str[0].str.replace("R","S")),"SubjectID does not match SampleID ", "passed")
     df["Validation 32"]= np.where((df["Method"].isnull()) & (df["Analyte"].str.contains("Confirmed?",na=False) == False)&(df["Analyte"].isin(ip_message_list) == False), "Analyte should have IP message", "passed")
     df["Validation 33"]= validation_33(df)
-    df["Validation 34"]= np.where(((df["Repeat"] == "Y") & (df["Method"].isin(cbc_list))  & (df["InitialResult"].str.contains("W|----",na=False) == False)) , "Initail Result should contain 'W'", "passed")
-    df["Validation 35"]= np.where(((df["Repeat"] == "Y") & (df["Analyte"].isin(ip_message_list)) & (df["InitialResult"].str.contains("A|----",na=False) == False)) , "Initail Result should contain 'A'", "passed")
+    df["Validation 34"]= np.where(((df["Repeat"] == "Y") & (df["Method"].isin(cbc_list))  & (df["InitialResult"].str.contains("W|----",na=False) == False)) , "Initial Result should contain 'W'", "passed")
+    df["Validation 35"]= np.where(((df["Repeat"] == "Y") & (df["Analyte"].isin(ip_message_list)) & (df["InitialResult"].str.contains("A|----",na=False) == False)) , "Initial Result should contain 'A'", "passed")
     df["Validation 36"]= validation_36(df)
     df["Validation 37"]= validation_37(df)
     df["Validation 38"]= validation_38(df)
@@ -332,7 +332,7 @@ def apply_validation_checks(df): #takes dataframe, returns dataframe with new va
 
 @task
 def split_val_df_noted_records(df):
-    filter = (df["Test Comments"].str.startswith("NOTE:",na=False))
+    filter = (df["Test Comments"].str.contains("NOTE:",na=False))
     noted_df = df.loc[filter]
     remaining_df = df.loc[~filter]
 
@@ -404,7 +404,7 @@ def read_excel_file(input):
     return df
 
 # our global variables for condition checking
-val_1_analyte_list = ["Atypical_Lympho?","Left_Shift?","Fragments?"]
+val_1_analyte_list = ["Atypical_Lympho?","PLT_Abn_Distribution","Left_Shift?","Fragments?"]
 val_4_origin_values = ["Atellica1","Atellica2","BioRad D100"]
 val_8_origin_values = ["Atellica1","Atellica2","BioRad D100","Sysmex XN-1000"]
 val_9_origin_values = ["Atellica1","Atellica2","BioRad D100","Sysmex XN-1000"]
@@ -416,7 +416,7 @@ val_8_analyte_list = ["PLT_Abn_Distribution","Fragments?","Abn_Lympho?","ACTION_
 "NRBC Present?","PLT_Clumps?","PRBC?","RBC_Agglutination?","Turbidity/HGB_Interference?"]
 
 ip_message_list = ["WBC_Abn_Scattergram","RBC_Abn_Distribution","RBC_Agglutination?","PLT_Abn_Distribution", "PLT_Abn_Distribution Confirmed?",
-"PLT_Abn_Scattergram","PLT_Clumps?","Blasts?","Blasts/Abn_Lympho?","Atypical_Lympho?","Atypical Lympho? Confirmed?","Blasts/Abn Lympho? Confirmed?","Abn_Lympho?","Turbidity/HGB_Interference?",
+"PLT_Abn_Scattergram","PLT_Clumps?","Blasts?","Blasts/Abn_Lympho?","Atypical_Lympho?","Atypical Lympho? Confirmed?","Blasts/Abn Lympho? Confirmed?","Blasts/Abn_Lympho? Confirmed?","Abn_Lympho?","Turbidity/HGB_Interference?",
 "Left_Shift?","NRBC_Present","Iron_Deficiency?","Fragments?","Fragments? Confirmed?", "PLTCLUMP", "PLT_Clumps? Confirmed?"] 
 
 
