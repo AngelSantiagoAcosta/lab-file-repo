@@ -257,10 +257,30 @@ def validation_37(df):
         df.loc[sample_filter & ip_message_filter,"Validation 37"]= np.where((comfirmed_bool) ,"passed","IP Message confirmation should be present")
     return df["Validation 37"]
 
+# @task  
+# def validation_38(df):
+#     df["Validation 38"] = ""
+#     condition1 = (df["Repeat"] == "Y") & (df["Origin"].isin(val_9_origin_values))
+#     sampleID_list = df.loc[condition1]["SampleID"].unique()
+#     for sampleID in sampleID_list:
+#         sample_filter = (df["SampleID"] == sampleID)
+#         condition2 = (df["Repeat"] != "Y")
+#         resultID_list = df.loc[sample_filter & condition1]["TestResultID"].to_list()
+#         aspiration_origin_list = df.loc[sample_filter & condition1][["AspirationTimestamp","Origin"]].values.tolist()
+#         record_dict = dict(zip(resultID_list,aspiration_origin_list))
+#         for resultID, timestamp_origin in record_dict.items():
+#             # test_comment_bool = df.loc[df["TestResultID"] == resultID]["Test Comments"].isnull().to_list()[0]
+#             cond_3_df = df.loc[condition2 & (df["Origin"] == timestamp_origin[1]) & sample_filter]
+#             condition3 = np.any(np.where((timestamp_origin[0] < cond_3_df["AspirationTimestamp"]),True, np.where((timestamp_origin[0] == cond_3_df["AspirationTimestamp"]),True,False)))
+#             df.loc[sample_filter & (df["AspirationTimestamp"] == timestamp_origin[0]) & (df["TestResultID"] == resultID),"Validation 38"]= np.where((condition3) ,"Aspiration Time of repeat test is not after initial tests","passed")        
+#     return df["Validation 38"]
+
+
+
 @task  
 def validation_38(df):
     df["Validation 38"] = ""
-    condition1 = (df["Repeat"] == "Y") & (df["Origin"].isin(val_9_origin_values))
+    condition1 = (df["Repeat"] == "Y")
     sampleID_list = df.loc[condition1]["SampleID"].unique()
     for sampleID in sampleID_list:
         sample_filter = (df["SampleID"] == sampleID)
@@ -270,7 +290,7 @@ def validation_38(df):
         record_dict = dict(zip(resultID_list,aspiration_origin_list))
         for resultID, timestamp_origin in record_dict.items():
             # test_comment_bool = df.loc[df["TestResultID"] == resultID]["Test Comments"].isnull().to_list()[0]
-            cond_3_df = df.loc[condition2 & (df["Origin"] == timestamp_origin[1]) & sample_filter]
+            cond_3_df = df.loc[condition2 & sample_filter]
             condition3 = np.any(np.where((timestamp_origin[0] < cond_3_df["AspirationTimestamp"]),True, np.where((timestamp_origin[0] == cond_3_df["AspirationTimestamp"]),True,False)))
             df.loc[sample_filter & (df["AspirationTimestamp"] == timestamp_origin[0]) & (df["TestResultID"] == resultID),"Validation 38"]= np.where((condition3) ,"Aspiration Time of repeat test is not after initial tests","passed")        
     return df["Validation 38"]
@@ -585,7 +605,7 @@ def process_lis_data(input_file_path,output_directory):
     input_file_name = os.path.basename(input_file_path)
     output_string = input_file_name.split(".")[0]
     date = datetime.now().strftime("%Y_%m_%d-%I_%M_%S_%p")
-    output_file = f"\Validation Results for {output_string} {date}.xlsx"
+    output_file = f"Validation Results for {output_string} {date}.xlsx"
     output_path = output_directory + "/" + output_file
     df = read_excel_file(input_file_path)
     original_data = df.copy()
